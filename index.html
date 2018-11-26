@@ -4,153 +4,17 @@
         border: 1px solid;
     }
     td { 
-        border: 1px solid;
+        background: #eee;
         width: 50px; 
         height: 50px; 
+    }
+    .playing {
+        background: #fee;
     }
 </style
 </head>
 <body>
 <script src="./dumb.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzicato/0.6.4/Pizzicato.min.js"></script>
-<script>
-
-function identity(n) {
-    return n;
-}
-
-function brownNoise(e) {
-    var white;
-    var lastOut = 0;
-    var output = e.outputBuffer.getChannelData(0);
-    for (var i = 0; i < e.outputBuffer.length; i++) {
-        white = Math.random() * 2 - 1;
-        output[i] = (lastOut + (0.02 * white)) / 1.02;
-        lastOut = output[i];
-        output[i] *= 3.5; // (roughly) compensate for gain
-    }
-    return output;
-}
-
-function makeTrack(seq) {
-    let notes = new Array(seq.resolution);
-    notes = notes.fill(null);
-    return { notes: notes };
-}
-
-function addTrack(seq, track) {
-    track = track || makeTrack(seq)
-    seq.tracks.push(track);
-    return seq;
-}
-
-function addTracks(seq, num) {
-    while(num--) {
-        seq = addTrack(seq);
-    }
-    return seq;
-}
-
-function makeSequence(resolution, bpm) {
-    return {
-        resolution: resolution,
-        bpm: bpm,
-        playhead: 0,
-        started: null,
-        state: 'paused',
-        tracks: []
-    }
-}
-
-function renderNotes(notes) {
-    var curdur = 0;
-    return notes.map(function(note, i) {
-        if (note) {
-            curdur = note.dur;
-        }
-        if (!curdur) {
-            return dumb('td', [["text", 1]]);
-        } else if (note && curdur == note.dur) {
-            return dumb('td', {colspan: curdur}, [["text", note.dur]])
-        } else {
-            curdur--;
-            return null;
-        }
-    }).filter(identity);
-}
-
-function renderTrack(track) {
-    let children = renderNotes(track.notes)
-    return dumb("tr", children)
-}
-
-function renderSequence(seq) {
-    let children = [];
-    let cols = [];
-    for (var i = 0; i < seq.resolution; i++) {
-        cols.push(dumb("col"));
-    }
-    let colgroups = dumb("colgroup", cols);
-    let tracks = seq.tracks.map(renderTrack);
-    children = children.concat(colgroups)
-    children = children.concat(tracks)
-    return dumb("table", children);
-}
-
-function step(seq) {
-    seq.playhead++;
-    if (seq.playhead >= seq.resolution) {
-        seq.playhead = 0;
-    }
-    return seq.playhead;
-}
-
-function playNote(note, bpm) {
-    var sound = new Pizzicato.Sound({
-        source: 'script',
-        options: { audioFunction: note.sound }
-    });
-    sound.play();
-    setTimeout(function() {
-        sound.stop();
-    }, seconds(note.dur, bpm))
-}
-
-function playTrackAt(track, index, bpm) {
-    if (track.notes[index]) playNote(track.notes[index], bpm);
-}
-
-function seconds(dur, bpm) {
-    return (60 / bpm) * (dur * 1000);
-}
-
-function play(seq, index) {
-    seq.tracks.forEach(function(track) {
-        playTrackAt(track, index, seq.bpm);
-    });
-    setTimeout(function() {
-        play(seq, step(seq));
-    }, (60 / seq.bpm) * 1000 );
-}
-
-function _fillRandom(seq) {
-    seq.tracks[0].notes = seq.tracks[0].notes.map(function(note) {
-        if (Math.random() > .9) {
-            note = {sound: brownNoise, dur: Math.ceil(Math.random() * 4)};
-        }
-        return note;
-    })
-}
-
-let seq = makeSequence(32, 120);
-seq = addTracks(seq, 2);
-
-_fillRandom(seq)
-console.log(seq);
-
-play(seq, seq.playhead);
-
-document.body.appendChild(renderSequence(seq))
-
-</script>
+<script src="main.js"></script>
 </body>
