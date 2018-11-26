@@ -123,9 +123,6 @@ function seconds(dur, bpm) {
 }
 
 function play(seq, index) {
-    if (stop) {
-        return;
-    }
     seq.tracks.forEach(function(track) {
         playTrackAt(track, index, seq.bpm);
     });
@@ -145,7 +142,8 @@ function stepAndRender(seq) {
 function _fillTest(seq) {
     seq.tracks[0].notes[2] = {dur: 3, sound: brownNoise}
     seq.tracks[0].notes[4] = {dur: 4, sound: brownNoise}
-    seq.tracks[0].notes = seq.tracks[0].notes.slice(0, 27);
+    seq.tracks[0].notes[10] = {dur: 2, sound: brownNoise}
+    seq.tracks[0].notes = seq.tracks[0].notes.slice(0, 26);
     console.log(seq.tracks[0].notes.reduce(function(acc, note) { return acc + (note ? note.dur : 1) }, 0))
     console.log(seq);
 }
@@ -154,6 +152,6 @@ let seq = makeSequence(32, 40);
 seq = addTracks(seq, 2);
 
 _fillTest(seq)
-document.body.appendChild(renderSequence(seq))
+// document.body.appendChild(renderSequence(seq))
 
-// play(seq, seq.playhead);
+play(seq, seq.playhead);
